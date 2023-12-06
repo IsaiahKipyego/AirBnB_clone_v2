@@ -1,54 +1,35 @@
-ets server for deployment
-# install nginx
-sudo apt-get update -y
-sudo apt-get install nginx -y
+#!/usr/bin/env bash
+# script sets up web server for deployment of web_static.
 
-# creates necessary folders
-sudo mkdir -p /data/
-sudo mkdir -p /data/web_static/
-sudo mkdir -p /data/web_static/releases/
-sudo mkdir -p /data/web_static/shared/
-sudo mkdir -p /data/web_static/releases/test/
+apt-get update
+apt-get install -y nginx
 
-# creates index.html file for testing
-echo "<html>
-  <head>
-  </head>
-  <body>
-    Holberton School
-  </body>
-</html>" | sudo tee /data/web_static/releases/test/index.html
+mkdir -p /data/web_static/releases/test/
+mkdir -p /data/web_static/shared/
+echo "Holberton School" > /data/web_static/releases/test/index.html
+ln -sf /data/web_static/releases/test/ /data/web_static/current
 
-# creates a symbolic link
-sudo ln -sfn /data/web_static/releases/test/ /data/web_static/current
+chown -R ubuntu /data/
+chgrp -R ubuntu /data/
 
-# change ownership of folder
-sudo chown -R ubuntu:ubuntu /data/
+printf %s "server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    add_header X-Served-By $HOSTNAME;
+    root   /var/www/html;
+    index  index.html index.htm;
+    location /hbnb_static {
+        alias /data/web_static/current;
+        index index.html index.htm;
+    }
+    location /redirect_me {
+        return 301 http://cuberule.com/;
+    }
+    error_page 404 /404.html;
+    location /404 {
+      root /var/www/html;
+      internal;
+    }
+}" > /etc/nginx/sites-available/default
 
-# setups config file
-echo "server {
-        listen 80 default_server;
-        listen [::]:80 default_server;
-
-        root /var/www/html;
-
-        index index.html index.htm index.nginx-debian.html;
-
-        server_name _;
-        add_header X-Served-By 246664-web-01;
-        error_page 404 /custom_404.html;
-        rewrite ^/redirect_me https://www.youtube.com/watch?v=dQw4w9WgXcQ permanent;
-
-	location /hbnb_static {
-                alias /data/web_static/current/;
-        }
-
-        location / {
-                # First attempt to serve request as file, then
-                # as directory, then fall back to displaying a 404.
-                try_files \$uri \$uri/ =404;
-        }
-}" | sudo tee /etc/nginx/sites-available/default
-
-# restarts server
-sudo service nginx restart
+service nginx restart
