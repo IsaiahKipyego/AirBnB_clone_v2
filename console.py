@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-""" Console script """
+""" Console Module """
 import cmd
 import sys
 from models.base_model import BaseModel
@@ -13,9 +13,9 @@ from models.review import Review
 
 
 class HBNBCommand(cmd.Cmd):
-    """ Contains functionality for the HBNB console"""
+    """ Contains the functionality for the HBNB console"""
 
-    # determines prompts for the interactive and non-interactive modes
+    # determines prompt for interactive/non-interactive modes
     prompt = '(hbnb) ' if sys.__stdin__.isatty() else ''
 
     classes = {
@@ -36,7 +36,7 @@ class HBNBCommand(cmd.Cmd):
             print('(hbnb)')
 
     def precmd(self, line):
-        """Reformats command line for advanced command syntax.
+        """Reformat command line for advanced command syntax.
         Usage: <class name>.<command>([<id> [<*args> or <**kwargs>]])
         (Brackets denote optional fields in usage example.)
         """
@@ -46,13 +46,13 @@ class HBNBCommand(cmd.Cmd):
         if not ('.' in line and '(' in line and ')' in line):
             return line
 
-        try:  # parses line left to right
+        try:  # parse line left to right
             pline = line[:]  # parsed line
 
-            # isolates <class name>
+            # isolate <class name>
             _cls = pline[:pline.find('.')]
 
-            # isolates/validate <command>
+            # isolate and validate <command>
             _cmd = pline[pline.find('.') + 1:pline.find('(')]
             if _cmd not in HBNBCommand.dot_cmds:
                 raise Exception
@@ -92,7 +92,7 @@ class HBNBCommand(cmd.Cmd):
         return stop
 
     def do_quit(self, command):
-        """ Methods to exit the HBNB console"""
+        """ Method to exit the HBNB console"""
         exit()
 
     def help_quit(self):
@@ -134,7 +134,7 @@ class HBNBCommand(cmd.Cmd):
         print(new_instance.id)
 
     def help_create(self):
-        """ Helps infor for the create method """
+        """ Help information for the create method """
         print("Creates a class of any type")
         print("[Usage]: create <className>\n")
 
@@ -302,7 +302,7 @@ class HBNBCommand(cmd.Cmd):
 
         # iterate through attr names and values
         for i, att_name in enumerate(args):
-            # blocks only runs on even iterations
+            # block only runs on even iterations
             if (i % 2 == 0):
                 att_val = args[i + 1]  # following item is value
                 if not att_name:  # check for att_name
